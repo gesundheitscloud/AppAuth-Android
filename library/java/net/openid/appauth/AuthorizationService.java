@@ -336,8 +336,7 @@ public class AuthorizationService {
      */
     public SynchronousTokenRequestData performSynchronousTokenRequest(
         @NonNull TokenRequest request,
-        @NonNull ClientAuthentication clientAuthentication,
-        @NonNull TokenResponseCallback callback) {
+        @NonNull ClientAuthentication clientAuthentication) {
         checkNotDisposed();
         Logger.debug("Initiating code exchange request to %s",
             request.configuration.tokenEndpoint);
@@ -345,8 +344,7 @@ public class AuthorizationService {
             request,
             clientAuthentication,
             mClientConfiguration.getConnectionBuilder(),
-            SystemClock.INSTANCE,
-            callback)
+            SystemClock.INSTANCE)
             .execute();
     }
 
@@ -573,7 +571,6 @@ public class AuthorizationService {
         private TokenRequest mRequest;
         private ClientAuthentication mClientAuthentication;
         private final ConnectionBuilder mConnectionBuilder;
-        private TokenResponseCallback mCallback;
         private Clock mClock;
 
         private AuthorizationException mException;
@@ -581,13 +578,11 @@ public class AuthorizationService {
         SynchronousTokenRequestTask(TokenRequest request,
                          @NonNull ClientAuthentication clientAuthentication,
                          @NonNull ConnectionBuilder connectionBuilder,
-                         Clock clock,
-                         TokenResponseCallback callback) {
+                         Clock clock) {
             mRequest = request;
             mClientAuthentication = clientAuthentication;
             mConnectionBuilder = connectionBuilder;
             mClock = clock;
-            mCallback = callback;
         }
 
         public SynchronousTokenRequestData execute() {
@@ -700,7 +695,6 @@ public class AuthorizationService {
             }
             Logger.debug("Token exchange with %s completed",
                 mRequest.configuration.tokenEndpoint);
-            mCallback.onTokenRequestCompleted(response, null);
             return new SynchronousTokenRequestData(response, null);
         }
 
